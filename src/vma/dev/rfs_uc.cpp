@@ -122,18 +122,19 @@ bool rfs_uc::rx_dispatch_packet(mem_buf_desc_t* p_rx_wc_buf_desc, void* pv_fd_re
 {
 	// Dispatching: Notify new packet to the FIRST registered receiver ONLY
 	p_rx_wc_buf_desc->reset_ref_count();
-#ifdef DEFINED_VMAPOLL	
-#ifdef RDTSC_MEASURE_RX_DISPATCH_PACKET
-	RDTSC_TAKE_START(RDTSC_FLOW_RX_DISPATCH_PACKET);
-#endif //RDTSC_MEASURE_RX_DISPATCH_PACKET
-	//for (uint32_t i=0; i < m_n_sinks_list_entries; ++i) 
+	RDTSC_FLOW_RX_DISPATCH_PACKET_START;
+
+#ifdef DEFINED_VMAPOLL
+	//for (uint32_t i=0; i < m_n_sinks_list_entries; ++i)
 	{
 		if (likely(m_sinks_list[0])) {
 			p_rx_wc_buf_desc->inc_ref_count();
 			m_sinks_list[0]->rx_input_cb(p_rx_wc_buf_desc, pv_fd_ready_array);
-#ifdef RDTSC_MEASURE_RX_DISPATCH_PACKET
-	RDTSC_TAKE_END(RDTSC_FLOW_RX_DISPATCH_PACKET);
-#endif //RDTSC_MEASURE_RX_DISPATCH_PACKET
+#endif // DEFINED_VMAPOLL
+
+	RDTSC_FLOW_RX_DISPATCH_PACKET_END;
+
+#ifdef DEFINED_VMAPOLL
 #else
 	for (uint32_t i=0; i < m_n_sinks_list_entries; ++i) {
 		if (m_sinks_list[i]) {

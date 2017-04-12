@@ -503,9 +503,8 @@ int qp_mgr::post_recv(mem_buf_desc_t* p_mem_buf_desc)
 
 			m_curr_rx_wr = 0;
 			struct ibv_recv_wr *bad_wr = NULL;
-#ifdef RDTSC_MEASURE_RX_VERBS_POST_RECV
-			RDTSC_TAKE_START(RDTSC_FLOW_RX_VERBS_POST_RECV);
-#endif //RDTSC_MEASURE_RX_VERBS_POST_RECV
+			RDTSC_FLOW_RX_VERBS_POST_RECV_START;
+
 			IF_VERBS_FAILURE(ibv_post_recv(m_qp, &m_ibv_rx_wr_array[0], &bad_wr)) {
 				uint32_t n_pos_bad_rx_wr = ((uint8_t*)bad_wr - (uint8_t*)m_ibv_rx_wr_array) / sizeof(struct ibv_recv_wr);
 				qp_logerr("failed posting list (errno=%d %m)", errno);
@@ -517,14 +516,11 @@ int qp_mgr::post_recv(mem_buf_desc_t* p_mem_buf_desc)
 				if (n_pos_bad_rx_wr != (m_n_sysvar_rx_num_wr_to_post_recv - 1)) {
 					m_ibv_rx_wr_array[n_pos_bad_rx_wr].next = &m_ibv_rx_wr_array[n_pos_bad_rx_wr+1];
 				}
-#ifdef RDTSC_MEASURE_RX_VERBS_POST_RECV
-				reset_rdtsc_counter(RDTSC_FLOW_RX_VERBS_POST_RECV);
-#endif //RDTSC_MEASURE_RX_VERBS_POST_RECV
+
+				RDTSC_FLOW_RX_VERBS_POST_RECV_RESET;
 				throw;
 			} ENDIF_VERBS_FAILURE;
-#ifdef RDTSC_MEASURE_RX_VERBS_POST_RECV
-			RDTSC_TAKE_END(RDTSC_FLOW_RX_VERBS_POST_RECV);
-#endif //RDTSC_MEASURE_RX_VERBS_POST_RECV
+			RDTSC_FLOW_RX_VERBS_POST_RECV_END;
 			qp_logfunc("Successful ibv_post_recv");
 		}
 		else {
@@ -655,55 +651,37 @@ int qp_mgr::send(vma_ibv_send_wr* p_send_wqe)
 	}
 	++m_n_tx_count;
 
-#ifdef VMA_TIME_MEASURE
 	TAKE_T_TX_POST_SEND_START;
-#endif
 
-#ifdef RDTSC_MEASURE_TX_VERBS_POST_SEND
-	RDTSC_TAKE_START(RDTSC_FLOW_TX_VERBS_POST_SEND);
-#endif //RDTSC_MEASURE_TX_VERBS_POST_SEND
+	RDTSC_FLOW_TX_VERBS_POST_SEND_START;
 
 #ifdef DEFINED_VMAPOLL
 	mlx5_send(p_send_wqe);
 #else // DEFINED_VMAPOLLL
 	vma_ibv_send_wr *bad_wr = NULL;
 	IF_VERBS_FAILURE(vma_ibv_post_send(m_qp, p_send_wqe, &bad_wr)) {
-#ifdef VMA_TIME_MEASURE
 		INC_ERR_TX_COUNT;
-#endif
 		qp_logerr("failed post_send%s (errno=%d %m)\n", ((vma_send_wr_send_flags(*p_send_wqe) & VMA_IBV_SEND_INLINE)?"(+inline)":""), errno);
 		if (bad_wr) {
 			qp_logerr("bad_wr info: wr_id=%#x, send_flags=%#x, addr=%#x, length=%d, lkey=%#x, max_inline_data=%d",
 			    bad_wr->wr_id, vma_send_wr_send_flags(*bad_wr), bad_wr->sg_list[0].addr, bad_wr->sg_list[0].length, bad_wr->sg_list[0].lkey, m_max_inline_data);
 		}
-#ifdef RDTSC_MEASURE_TX_VERBS_POST_SEND
-		reset_rdtsc_counter(RDTSC_FLOW_TX_VERBS_POST_SEND);
-#endif
-#ifdef RDTSC_MEASURE_TX_SENDTO_TO_AFTER_POST_SEND
-		reset_rdtsc_counter(RDTSC_FLOW_SENDTO_TO_AFTER_POST_SEND);
-#endif //RDTSC_MEASURE_TX_SENDTO_TO_AFTER_POST_SEND
+		RDTSC_FLOW_TX_VERBS_POST_SEND_RESET;
+		RDTSC_FLOW_SENDTO_TO_AFTER_POST_SEND_RESET;
 		return -1;
 	} ENDIF_VERBS_FAILURE;
 #endif // DEFINED_VMAPOLL
 
-#ifdef RDTSC_MEASURE_TX_VERBS_POST_SEND
-	RDTSC_TAKE_END(RDTSC_FLOW_TX_VERBS_POST_SEND);
-#endif //RDTSC_MEASURE_TX_VERBS_POST_SEND
-
-#ifdef RDTSC_MEASURE_TX_SENDTO_TO_AFTER_POST_SEND
-	RDTSC_TAKE_END(RDTSC_FLOW_SENDTO_TO_AFTER_POST_SEND);
-#endif //RDTSC_MEASURE_TX_SENDTO_TO_AFTER_POST_SEND
-
-#ifdef VMA_TIME_MEASURE
+	RDTSC_FLOW_TX_VERBS_POST_SEND_END;
+	RDTSC_FLOW_SENDTO_TO_AFTER_POST_SEND_END;
 	TAKE_T_TX_POST_SEND_END;
-#endif
 
 	if (is_signaled) {
 
 		// Clear the SINGAL request
 #ifndef DEFINED_VMAPOLL	// not defined
 		vma_send_wr_send_flags(*p_send_wqe) = (vma_ibv_send_flags)(vma_send_wr_send_flags(*p_send_wqe) & ~VMA_IBV_SEND_SIGNALED);
-#endif // DEFINED_VMAPOLL				
+#endif // DEFINED_VMAPOLL
 
 		// Poll the Tx CQ
 		uint64_t dummy_poll_sn = 0;
