@@ -50,7 +50,7 @@
 #include <unistd.h>
 #include "utils/rdtsc.h"
 #define __STDC_FORMAT_MACROS
-#include <inttypes.h>
+#include <inttypes.h>rfx_uccpp
 #include "vlogger/vlogger.h"
 
 #ifdef RDTSC_MEASURE
@@ -97,20 +97,21 @@ void print_rdtsc_summary();
 #endif
 
 #define RDTSC_TAKE_END(instr) do { \
-	if (g_rdtsc_instr_info_arr[instr].start) { \
-		uint64_t idx = g_rdtsc_instr_info_arr[instr].counter & (RDTSC_PERCENTILE_BUF_SIZE - 1); \
-		gettimeoftsc(&g_rdtsc_instr_info_arr[instr].end); \
-		g_rdtsc_instr_info_arr[instr].results[idx] = \
-			g_rdtsc_instr_info_arr[instr].start + g_rdtsc_cost <= g_rdtsc_instr_info_arr[instr].end ? \
-			g_rdtsc_instr_info_arr[instr].end - g_rdtsc_instr_info_arr[instr].start - g_rdtsc_cost : 0; \
-		g_rdtsc_instr_info_arr[instr].cycles += g_rdtsc_instr_info_arr[instr].results[idx]; \
-		g_rdtsc_instr_info_arr[instr].counter++; \
-		g_rdtsc_instr_info_arr[instr].start = 0; \
-		if (g_rdtsc_instr_info_arr[instr].print_ratio && \
-				!(g_rdtsc_instr_info_arr[instr].counter % g_rdtsc_instr_info_arr[instr].print_ratio)) { \
+	instr_info *pinst = &g_rdtsc_instr_info_arr[instr]; \
+	if (pinst->start) { \
+		uint64_t idx = pinst->counter & (RDTSC_PERCENTILE_BUF_SIZE - 1); \
+		gettimeoftsc(&pinst->end); \
+		pinst->results[idx] = \
+			(pinst->start + g_rdtsc_cost <= pinst->end) ? \
+			(pinst->end - pinst->start - g_rdtsc_cost) : (0); \
+		pinst->cycles += pinst->results[idx]; \
+		pinst->counter++; \
+		pinst->start = 0; \
+		if (pinst->print_ratio && \
+				!(pinst->counter % pinst->print_ratio)) { \
 			vlog_printf(VLOG_ERROR,"%s: %" PRIu64 " [@runtime]\n", \
-				g_rdtsc_flow_names[g_rdtsc_instr_info_arr[instr].trace_log_idx], \
-					g_rdtsc_instr_info_arr[instr].cycles / g_rdtsc_instr_info_arr[instr].counter); \
+				g_rdtsc_flow_names[pinst->trace_log_idx], \
+					pinst->cycles / pinst->counter); \
 		} \
 	} \
 } while (0)
