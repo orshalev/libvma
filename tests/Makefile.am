@@ -1,4 +1,4 @@
-SUBDIRS := gtest latency_test pps_test throughput_test
+SUBDIRS := gtest latency_test pps_test throughput_test timestamping
 
 EXTRA_DIST = \
 	gtest \
@@ -13,5 +13,6 @@ EXTRA_DIST = \
 	multithread_test \
 	server_test \
 	vma_perf_envelope \
+	timestamping \
 	reuse_ud_test.c \
 	select_t1.c

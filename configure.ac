@@ -894,6 +894,7 @@ AC_CONFIG_FILES([
 		tests/pps_test/Makefile
 		tests/latency_test/Makefile
 		tests/throughput_test/Makefile
+		tests/timestamping/Makefile
 		tools/Makefile
 		tools/daemon/Makefile
 		contrib/scripts/vma.init
