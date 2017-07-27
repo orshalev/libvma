@@ -311,10 +311,11 @@ typedef struct ibv_exp_flow_spec_action_tag_dummy {}	vma_ibv_flow_spec_action_ta
 #endif
 
 typedef enum vma_wr_tx_packet_attr {
-	VMA_TX_PACKET_BLOCK   = (1 << 0), // blocking send
-	VMA_TX_PACKET_DUMMY   = (1 << 1), // dummy send
-	VMA_TX_PACKET_L3_CSUM = (1 << 6), //MLX5_ETH_WQE_L3_CSUM offload to HW L3 (IP) header checksum
-	VMA_TX_PACKET_L4_CSUM = (1 << 7), //MLX5_ETH_WQE_L4_CSUM offload to HW L4 (TCP/UDP) header checksum
+	VMA_TX_PACKET_BLOCK          = (1 << 0), // blocking send
+	VMA_TX_PACKET_DUMMY          = (1 << 1), // dummy send (send NOP to HCA)
+	VMA_TX_PACKET_LOOPBACK_DUMMY = (1 << 2), // MAC dummy send (copy SRC MAC onto DST MAC)
+	VMA_TX_PACKET_L3_CSUM        = (1 << 6), //MLX5_ETH_WQE_L3_CSUM offload to HW L3 (IP) header checksum
+	VMA_TX_PACKET_L4_CSUM        = (1 << 7), //MLX5_ETH_WQE_L4_CSUM offload to HW L4 (TCP/UDP) header checksum
 } vma_wr_tx_packet_attr;
 
 inline bool is_set(vma_wr_tx_packet_attr state_, vma_wr_tx_packet_attr tx_mode_)
