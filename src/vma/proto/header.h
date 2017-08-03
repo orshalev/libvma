@@ -116,22 +116,20 @@ public:
 	void update_actual_hdr_addr();
 
 	inline void copy_fake_l2_ip_hdr(tx_packet_template_t *p_hdr)
-	{
+        {
 		// copy words every time, to optimize for speed
 		p_hdr->words[0] = m_header.words[0]; // dummy(16) + l2(16) (mac / dummy)
-		p_hdr->words[1] = m_header.words[1]; // l2 (32)            (mac / dummy)
-		p_hdr->words[2] = m_header.words[2]; // l2 (32)            (mac / dummy)
-//		p_hdr->words[3] = 0;		     // l2 (32)            (mac / dummy)
-		p_hdr->words[3] = m_header.words[3]; // l2 (32)            (mac / dummy)
-		p_hdr->words[4] = m_header.words[4]; // l2 (32)            (mac / vlan / ipoib)
-		p_hdr->words[5] = m_header.words[5]; // IP-> ver(4) + hdrlen(4) + tos(8) + totlen(16)
-		p_hdr->words[6] = m_header.words[6]; // IP-> id(16) + frag(16)
-		p_hdr->words[7] = m_header.words[7]; // IP-> ttl(8) + protocol(8) + checksum(16)
-		p_hdr->words[8] = m_header.words[8]; // IP-> saddr(32)
-		p_hdr->words[9] = m_header.words[9]; // IP-> daddr(32)
+                p_hdr->words[1] = m_header.words[1]; // l2 (32)            (mac / dummy)
+                p_hdr->words[2] = m_header.words[2]; // l2 (32)            (mac / dummy)
+                p_hdr->words[3] = m_header.words[3]; // l2 (32)            (mac / dummy)
+                p_hdr->words[4] = m_header.words[4]; // l2 (32)            (mac / vlan / ipoib)
+                p_hdr->words[5] = m_header.words[5]; // IP-> ver(4) + hdrlen(4) + tos(8) + totlen(16)
+                p_hdr->words[6] = m_header.words[6]; // IP-> id(16) + frag(16)
+                p_hdr->words[7] = m_header.words[7]; // IP-> ttl(8) + protocol(8) + checksum(16)
+                p_hdr->words[8] = m_header.words[8]; // IP-> saddr(32)
+                p_hdr->words[9] = m_header.words[9]; // IP-> daddr(32)
 		memcpy(p_hdr->hdr.m_l2_hdr.eth_hdr.m_eth_hdr.h_dest, p_hdr->hdr.m_l2_hdr.eth_hdr.m_eth_hdr.h_source,
 			sizeof(p_hdr->hdr.m_l2_hdr.eth_hdr.m_eth_hdr.h_source));
-
 	}
 
 	inline void copy_l2_ip_hdr(tx_packet_template_t *p_hdr)

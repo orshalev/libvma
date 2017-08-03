@@ -43,7 +43,6 @@
  */
 #define MSG_VMA_ZCOPY_FORCE	0x01000000 // don't fallback to bcopy
 #define	MSG_VMA_ZCOPY		0x00040000 // return: zero copy was done
-#define MSG_SPOOF_MAC		0x44000000
 /*
  * Options for setsockopt()/getsockopt()
  */
@@ -53,7 +52,8 @@
 /*
  * Flags for Dummy send API
  */
-#define VMA_SND_FLAGS_DUMMY MSG_SYN // equals to 0x400
+#define VMA_SND_FLAGS_DUMMY MSG_SYN    // equals to 0x400
+#define MSG_SPOOF_MAC       0x44000000 // loopback dummy message by copying dst onto src
 
 /* 
  * Return values for the receive packet notify callback function

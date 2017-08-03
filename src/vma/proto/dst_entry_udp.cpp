@@ -307,7 +307,7 @@ ssize_t dst_entry_udp::fast_send_fragmented(const iovec* p_iov, const ssize_t sz
 }
 
 ssize_t dst_entry_udp::fast_send(const iovec* p_iov, const ssize_t sz_iov,
-				bool is_dummy, bool b_blocked /*=true*/, bool is_rexmit /*=false*/, bool is_mac_dummy)
+				bool is_dummy, bool b_blocked /*=true*/, bool is_rexmit /*=false*/, bool is_mac_dummy /*= false*/)
 {
 	NOT_IN_USE(is_rexmit);
 
@@ -359,7 +359,8 @@ ssize_t dst_entry_udp::slow_send(const iovec* p_iov, size_t sz_iov, bool is_dumm
 			ret_val = pass_buff_to_neigh(p_iov, sz_iov);
 		}
 		else {
-			ret_val = fast_send(p_iov, sz_iov, is_dummy, b_blocked);
+			bool is_mac_dummy = flags & MSG_SPOOF_MAC;
+			ret_val = fast_send(p_iov, sz_iov, is_dummy, b_blocked, is_rexmit, is_mac_dummy);
 		}
 	}
 
