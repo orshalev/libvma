@@ -54,6 +54,7 @@
  * Flags for Dummy send API
  */
 #define VMA_SND_FLAGS_DUMMY MSG_SYN // equals to 0x400
+#define MSG_SPOOF_MAC		0x44000000
 
 /* 
  * Return values for the receive packet notify callback function
